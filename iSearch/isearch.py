@@ -4,11 +4,14 @@ import sys
 import argparse
 import os
 import sqlite3
+import logging
 from display import Displayer, Display_mode
 from termcolor import colored
 from parser import Parser
 from review import Reviewer
 from word_sql import Word_sql
+logging.basicConfig(level = logging.WARNING,format = '[%(filename)s:%(funcName)s:%(lineno)s]%(message)s')
+logger = logging.getLogger("iSearch")
 
 # Python2 compatibility
 if sys.version_info[0] == 2:
@@ -22,8 +25,10 @@ DEFAULT_PATH = os.path.join(os.path.expanduser('~'), '.iSearch')
 
 def search_online(word, word_parser):
     '''search the word or phrase on http://dict.youdao.com.'''
-
+    
     url = 'http://dict.youdao.com/w/%s' % word
+
+    logger.info('search online url[' + url + ']')
 
     word_dict = word_parser.get_text(url)
     word_dict["name"] = word
@@ -31,6 +36,7 @@ def search_online(word, word_parser):
 
 def search_database(word, word_sql, displayer):
     '''offline search.'''
+    logger.info('search database word[' + word + ']')
     #模糊查询
     if '#' in word:
         word_dict_list = word_sql.select_word('name LIKE "%%%s%%"' % (word))
@@ -171,7 +177,6 @@ def super_insert(input_file_path, word_parser):
     log_file_path = os.path.join(DEFAULT_PATH, 'log.txt')
     baseurl = 'http://dict.youdao.com/w/'
     word_list = open(input_file_path, 'r', encoding='utf-8')
-    log_file = open(log_file_path, 'w', encoding='utf-8')
 
     conn = sqlite3.connect(os.path.join(DEFAULT_PATH, 'word.db'))
     curs = conn.cursor()
@@ -187,14 +192,11 @@ def super_insert(input_file_path, word_parser):
                          (\"%s\", \"%s\", \"%s\", %d, \"%s\")" \
                          % (word, synonyms, discriminate, word_group, collins, bilingual, fanyiToggle, 1, word[0].upper()))
         except Exception as e:
-            print(word, "can't insert into database")
-            # save the error in log file.
-            print(e)
-            log_file.write(word + '\n')
+            logger.error(word, "can't insert into database. error[" + e + "]")
+
     conn.commit()
     curs.close()
     conn.close()
-    log_file.close()
     word_list.close()
 
 

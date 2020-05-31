@@ -5,6 +5,8 @@ import re
 import sqlite3
 import os
 from termcolor import colored
+import logging
+logger = logging.getLogger("iSearch")
 
 DEFAULT_PATH = os.path.join(os.path.expanduser('~'), '.iSearch')
 
@@ -74,11 +76,12 @@ class Word_sql:
         return word_dict
 
     def delete_word(self, condition):
+        logger.info("")
         try:
             curs = self.__conn.cursor()
             curs.execute('DELETE FROM Word WHERE %s' % condition)
         except Exception as e:
-            print(e)
+            logger.error(e)
             return False
         else:
             print(colored('delete word where %s ' % condition, 'green'))
@@ -86,12 +89,13 @@ class Word_sql:
             return True
 
     def update_word(self, set_part, condition):
+        logger.info("")
         try:
             curs = self.__conn.cursor()
             curs.execute('UPDATE Word SET %s WHERE %s' % (set_part, condition))
         except Exception as e:
-            print(colored('something\'s wrong, you can\'t set %s' % (set_part), 'white', 'on_red'))
-            print(e)
+            logger.error('something\'s wrong, you can\'t set %s' % (set_part))
+            logger.error(e)
             return False
         else:
             self.__conn.commit()
@@ -99,6 +103,7 @@ class Word_sql:
             return True
 
     def select_word(self, condition):
+        logger.info("")
         word_dict = {}
         word_dict_list = []
         curs = self.__conn.cursor()
@@ -133,8 +138,8 @@ class Word_sql:
                          values (%s, '%s')'''
                          % ( insert_str, value_str, word_dict["name"][0].upper()))
         except Exception as e:
-            print(colored('something\'s wrong, you can\'t add the word', 'white', 'on_red'))
-            print(e)
+            logger.error('something\'s wrong, you can\'t add the word')
+            logger.error(e)
             return False
         else:
             self.__conn.commit()

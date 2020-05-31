@@ -2,8 +2,11 @@
 # coding=utf-8
 
 import requests
+import logging
 import bs4
 import re
+
+logger = logging.getLogger("iSearch")
 
 # func get_info
 # purpose: find div content by id, and call func to deal with it
