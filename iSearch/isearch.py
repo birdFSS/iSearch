@@ -7,7 +7,7 @@ import sqlite3
 import logging
 from display import Displayer, Display_mode
 from termcolor import colored
-from parser import Parser
+from w_parser import Parser
 from review import Reviewer
 from word_sql import Word_sql
 logging.basicConfig(level = logging.WARNING,format = '[%(filename)s:%(funcName)s:%(lineno)s]%(message)s')
